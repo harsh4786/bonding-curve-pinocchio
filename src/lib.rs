@@ -38,8 +38,7 @@ pub const RAND: &[u8; 11] = b"random_seed";
 pub const ID: [u8; 32] =
     five8_const::decode_32_const("111111111111111111111111111111111111111");
 
-#[repr(C)]
-#[derive(Clone, Debug, PartialEq)]
+
 pub struct BondingCurveState (*const u8);
 
 impl BondingCurveState {
