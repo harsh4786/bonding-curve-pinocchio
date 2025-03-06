@@ -309,6 +309,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "bonding-curve-pinocchio"
+version = "0.1.0"
+dependencies = [
+ "five8_const",
+ "mollusk-svm",
+ "pinocchio",
+ "pinocchio-token",
+ "solana-nostd-sha256",
+ "solana-sdk",
+ "spl-token",
+]
+
+[[package]]
 name = "borsh"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -879,19 +892,6 @@ dependencies = [
  "pin-project-lite",
  "pin-utils",
  "slab",
-]
-
-[[package]]
-name = "fuxk-you"
-version = "0.1.0"
-dependencies = [
- "five8_const",
- "mollusk-svm",
- "pinocchio",
- "pinocchio-token",
- "solana-nostd-sha256",
- "solana-sdk",
- "spl-token",
 ]
 
 [[package]]

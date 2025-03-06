@@ -1,3 +1,5 @@
+#[cfg(test)]
+mod tests;
 
 use pinocchio::{
     account_info::AccountInfo, entrypoint, instruction::{ Seed, Signer}, msg,  program_error::ProgramError, pubkey:: Pubkey, ProgramResult
@@ -131,9 +133,11 @@ fn process_instruction(
 
 
 pub fn initialize(accounts: &[AccountInfo], data: &[u8]) -> ProgramResult {
-    let [state_account, vtoken_mint, state_token_account, vsol_mint] = accounts else {
+    let [state_account, vtoken_mint, state_token_account, vsol_mint, admin] = accounts else {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
+
+    assert!(admin.is_signer());
 
     // Parse bump byte and any remaining data
     let (bump, _data) = data
@@ -188,6 +192,8 @@ pub fn buy(accounts: &[AccountInfo], data: &[u8]) -> ProgramResult {
         return Err(ProgramError::NotEnoughAccountKeys);
     };
 
+    assert!(buyer.is_signer());
+    
     let (bump, data) = data
         .split_first()
         .ok_or(pinocchio::program_error::ProgramError::InvalidInstructionData)?;
@@ -358,15 +364,15 @@ pub fn sell(accounts: &[AccountInfo], instruction_data: &[u8]) -> ProgramResult 
 fn calculate_refund(vtoken_reserve: u64, vsol_reserve: u64, amount: u64) -> u64 {
     // Calculate refund based on current bonding curve position
     let k = vtoken_reserve * vsol_reserve;
-    let new_vtoken_reserve = vtoken_reserve - amount;
+    let new_vtoken_reserve = vtoken_reserve.checked_add(amount).unwrap();
     let new_vsol_reserve = k / new_vtoken_reserve;
-    new_vsol_reserve - vsol_reserve
+    vsol_reserve.checked_sub(new_vsol_reserve).unwrap()
 }
 
 fn calculate_cost(vtoken_reserve_amount: u64, vsol_reserve: u64, amount: u64) -> u64 {
     // Using the constant product formula, calculate cost for the amount to be purchased
     let k = vtoken_reserve_amount * vsol_reserve;
-    let new_vtoken_reserve = vtoken_reserve_amount + amount;
+    let new_vtoken_reserve = vtoken_reserve_amount.checked_sub(amount).unwrap();
     let new_vsol_reserve = k / new_vtoken_reserve;
-    vsol_reserve - new_vsol_reserve
+    new_vsol_reserve.checked_sub(vsol_reserve).unwrap()
 }
